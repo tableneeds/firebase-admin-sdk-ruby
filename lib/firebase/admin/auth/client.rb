@@ -87,6 +87,14 @@ module Firebase
           @user_manager.delete_user(uid)
         end
 
+        # Lists all users
+        #
+        # @param [String, nil] page_token The starting page token.
+        # @param [Integer, nil] page_size The page size.
+        def list_all_users(page_size: nil, page_token: nil)
+          @user_manager.list_all_users(page_size: page_size, page_token: page_token)
+        end
+
         # Verifies the signature and data for the provided JWT.
         #
         # Accepts a signed token string, verifies that it is current, was issued to this project, and that

@@ -79,6 +79,32 @@ module Firebase
           @client.post(with_path("accounts:delete"), {localId: validate_uid(uid, required: true)})
         end
 
+        # Gets a paginated list of all users.
+        # Will begin at `page_token` if provided, otherwise will start at the beginning.
+        # Will iterate through all users in the project.
+        #
+        # @param [String, nil] page_token A page token.
+        # @param [Integer, nil] page_size The page size.
+        #
+        # @return [Enumerable<UserRecord>] A list of users.
+        def list_all_users(page_size: nil, page_token: nil)
+          Enumerator.new do |yielder|
+            loop do
+              payload = { maxResults: page_size, nextPageToken: page_token }.compact
+
+              res = @client.get(with_path('accounts:batchGet'), payload).body
+              users = res['users'] if res
+              users&.each { yielder << UserRecord.new(_1) }
+
+              page_token = res['nextPageToken']
+
+              pp "page_token: #{page_token}"
+
+              break if res['nextPageToken'].nil?
+            end
+          end
+        end
+
         private
 
         def with_path(path)
